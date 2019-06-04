@@ -1,4 +1,4 @@
-require './enumerable'
+require './lib/enumerable'
 
 RSpec.describe Enumerable do
   let(:sample_arr) { ["apple", "orange", "banana", "pear"]}
@@ -101,7 +101,7 @@ RSpec.describe Enumerable do
     end
 
     it "returns the array in the #{range}" do
-      #expect(range.my_map).to eql(range.map)
+      expect(range.my_map).to be_an Enumerator
     end
   end
 
@@ -113,8 +113,8 @@ RSpec.describe Enumerable do
     end
 
     it "returns the accumulation in the given condition (with accumulator)" do
-      #expect(range.my_inject(2) { |acc,n| acc*n })
-      #.to eql(range.inject(2) { |acc,n| acc*n }) #151200*2
+      expect(range.my_inject(2) { |acc,n| acc*n })
+      .to eql(range.inject(2) { |acc,n| acc*n }) #151200*2
     end
   end
 end
