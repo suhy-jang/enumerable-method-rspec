@@ -97,7 +97,7 @@ module Enumerable
   end
 
   def my_inject(acc = nil)
-    my_each_with_index do |p,i|
+    self.my_each_with_index do |p,i|
       if 0 == i && acc.nil?
         acc = p
         next

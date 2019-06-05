@@ -26,7 +26,7 @@ RSpec.describe Enumerable do
       expect(array.my_each{|p| p}).to eql(array.each{|p| p})
     end
 
-    it "returns ':method_returned'" do
+    it "returns :method_returned" do
      expect(enum.my_each { |elm| elm }).to eql(enum.each { |elm| elm })
     end
 
@@ -46,7 +46,7 @@ RSpec.describe Enumerable do
   describe "#my_each_with_index" do
     animals = %w(cat dog wombat)
 
-    it "returns itself with block and two arguments" do
+    it "returns itself if block and two arguments given" do
       hash = Hash.new
       expect(animals.my_each_with_index{|item,index| hash[item] = index})
       .to eql(animals.each_with_index{|item,index| hash[item] = index})
@@ -62,16 +62,17 @@ RSpec.describe Enumerable do
     array_num = [1,2,3,4,5]
     array_sym = [:foo, :bar]
 
-    it "returns an array of the results with range input" do
-      expect(range.my_select{|p| p % 3 == 0 }).to eql(range.select{|p| p % 3 == 0 })
+    it "returns an array of the results for range" do
+      expect(range.my_select{|p| p % 3 == 0 })
+      .to eql(range.select{|p| p % 3 == 0 })
     end
 
-    it "returns an array of the results with number array input" do
+    it "returns an array of the results for number array" do
       expect(array_num.my_select { |p| p.even? })
       .to eql(array_num.select { |p| p.even? } )
     end
 
-    it "returns an array of the results with symbol array input" do
+    it "returns an array of the results for symbol array" do
       expect(array_sym.my_select { |p| p == :foo })
       .to eql(array_sym.select { |p| p == :foo } )
     end
@@ -205,7 +206,8 @@ RSpec.describe Enumerable do
     range = (5..10)
 
     it "returns accumulated result without parameter" do
-      expect(range.my_inject { |acc,n| acc+n }).to eql(range.inject { |acc,n| acc+n }) # 45
+      expect(range.my_inject { |acc,n| acc+n })
+      .to eql(range.inject { |acc,n| acc+n }) # 45
     end
 
     it "returns accumulated result with parameter" do
