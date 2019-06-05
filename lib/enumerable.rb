@@ -27,8 +27,8 @@ module Enumerable
       self.my_each {|p| return false unless yield(p)}
     elsif pattern != nil
       if pattern.is_a? Regexp
-        self.my_each {|p| return false unless p.is_a? =~ pattern}
-      else
+        self.my_each {|p| return false unless pattern =~ p}
+      else # sort
         self.my_each {|p| return false unless p.is_a?(pattern)}
       end
     else
@@ -41,7 +41,11 @@ module Enumerable
     if block_given?
       self.my_each { |p| return true if yield(p)}
     elsif pattern != nil
-      self.my_each { |p| return true if p.is_a?(pattern)}
+      if pattern.is_a? Regexp
+        self.my_each {|p| return true if pattern =~ p }
+      else # sort
+        self.my_each { |p| return true if p.is_a?(pattern)}
+      end
     else
       self.my_each { |p| return true if p }
     end
@@ -51,8 +55,12 @@ module Enumerable
   def my_none?(pattern = nil)
     if block_given?
       self.my_each{ |p| return false if yield(p)}
-    elsif !pattern.nil?
-      self.my_each{ |p| return false if p.is_a?(pattern)}
+    elsif pattern != nil
+      if pattern.is_a? Regexp
+        self.my_each{ |p| return false if pattern =~ p}
+      else  # sort
+        self.my_each{ |p| return false if p.is_a?(pattern)}
+      end
     else
       self.my_each{ |p| return false if p}
     end
