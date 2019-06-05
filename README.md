@@ -19,7 +19,7 @@ The project is part of a series of projects to be completed by students of [Micr
 > Test purpose file location
 
 ```sh
-./enumerable.rb
+./lib/enumerable.rb
 ```
 
 ## Usage
