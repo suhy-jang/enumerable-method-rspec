@@ -188,23 +188,23 @@ RSpec.describe Enumerable do
   end
 
   describe "#my_map" do
-    it "returns a new array through the proccess parameter with no block" do
+    it "returns a new array using process call" do
       expect(animals.my_map(&:to_i)).to eql(animals.map(&:to_i))
     end
 
-    it "returns a new array through the block process - string array" do
+    it "returns a new array through the block - string array" do
       expect(animals.my_map{ to_str }).to eql(animals.map{ to_str })
     end
 
-    it "returns a new array through the block process - range" do
+    it "returns a new array through the block - range" do
       expect(range.my_map{ to_square }).to eql(range.map{ to_square })
     end
 
-    it "returns a new array through the block process - number array" do
+    it "returns a new array through the block - number array" do
       expect(arr_i.my_map{ to_square }).to eql(arr_i.map{ to_square })
     end
 
-    it "returns itself if no block is - enumerator" do
+    it "returns itself if no block is given - enumerator" do
       expect(enum.my_map).to be_an Enumerator
     end
 
