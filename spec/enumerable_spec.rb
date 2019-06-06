@@ -13,21 +13,42 @@ RSpec.describe Enumerable do
 
     obj.to_enum :each_arg, :a, :x
   }
+  let(:range) { (1..10) }
+  let(:arr_random) { [:a, :x, []] }
+  let(:acc_num) { 2 }
+  let(:acc_str) { "pet" }
+  let(:animals) { %w[rabbit bear cat] }
+  let(:regexp) { /t/ }
+  let(:arr_i) { [1, 2, 3, 4, 5, 2] }
+  let(:arr_f) { [1, 3.14, 42] }
+  let(:arr_sym) { [:foo, :bar] }
+  let(:arr_numeric) { [1, 2i, 3.14] }
+  let(:arr_with_nil) { [nil, true, 99] }
+  let(:arr_empty) { [] }
+  let(:general_class) { Float }
+  let(:arr_with_false) { [nil, false] }
+  let(:arr_with_true) { [nil, false, true] }
+
+  let(:itself) { proc{ |x| x }}
+  let(:to_square) { proc{ |x| x*x } }
+  let(:to_str) { proc{ |x| "dog" }}
+  let(:sym_check) { proc{ |x| x == :foo }}
+  let(:even_check) { proc{ |x| x.even? }}
+  let(:compare_word){ proc{ |word| word.length >= 4 }}
+  let(:acc_plus) { proc{ |acc,n| acc + n }}
+  let(:acc_mult) { proc{ |acc,n| acc * n }}
 
   describe "#my_each" do
-    let(:range) { (1..4) }
-    let(:array) { [:a, :x, []] }
-
     it "returns itself - range" do
-      expect(range.my_each{|p| p}).to eql(range.each{|p| p})
+      expect(range.my_each{ itself }).to eql(range.each{ itself })
     end
 
     it "returns itself - array" do
-      expect(array.my_each{|p| p}).to eql(array.each{|p| p})
+      expect(arr_random.my_each{ itself }).to eql(arr_random.each{ itself })
     end
 
     it "returns :method_returned" do
-     expect(enum.my_each { |elm| elm }).to eql(enum.each { |elm| elm })
+      expect(enum.my_each { itself }).to eql(enum.each { itself })
     end
 
     it "returns the enumerator of the receiver - enum" do
@@ -39,14 +60,12 @@ RSpec.describe Enumerable do
     end
 
     it "returns the enumerator of the receiver - array" do
-      expect(array.my_each).to be_an Enumerator
+      expect(arr_random.my_each).to be_an Enumerator
     end
   end
 
   describe "#my_each_with_index" do
-    let(:animals) { %w(cat dog wombat) }
-
-    it "returns itself if block and two arguments given" do
+    it "returns itself if block and two arguments" do
       hash = Hash.new
       expect(animals.my_each_with_index{|item,index| hash[item] = index})
       .to eql(animals.each_with_index{|item,index| hash[item] = index})
@@ -58,23 +77,16 @@ RSpec.describe Enumerable do
   end
 
   describe "#my_select" do
-    let(:range) { (1..10) }
-    let(:array_num) { [1,2,3,4,5] }
-    let(:array_sym) { [:foo, :bar] }
-
     it "returns an array of the results for range" do
-      expect(range.my_select{|p| p % 3 == 0 })
-      .to eql(range.select{|p| p % 3 == 0 })
+      expect(range.my_select{ even_check }).to eql(range.select{ even_check })
     end
 
     it "returns an array of the results for number array" do
-      expect(array_num.my_select { |p| p.even? })
-      .to eql(array_num.select { |p| p.even? } )
+      expect(arr_i.my_select{ even_check }).to eql(arr_i.select{ even_check })
     end
 
     it "returns an array of the results for symbol array" do
-      expect(array_sym.my_select { |p| p == :foo })
-      .to eql(array_sym.select { |p| p == :foo } )
+      expect(arr_sym.my_select{ sym_check }).to eql(arr_sym.select{ sym_check })
     end
 
     it "returns the enumerator of the receiver - Enum" do
@@ -86,135 +98,151 @@ RSpec.describe Enumerable do
     end
 
     it "returns the enumerator of the receiver - Array" do
-      expect(array_num.my_select).to be_an Enumerator
+      expect(arr_i.my_select).to be_an Enumerator
     end
   end
 
   describe "#my_all?" do
-    let(:animals) { %w[ant bear cat] }
-    let(:regexp) { /w/ }
-
-    it "returns true or false with given block" do
-      expect(animals.my_all? { |word| word.length >= 4 })
-      .to eql(animals.all? { |word| word.length >= 4 })
+    it "returns true or false with block" do
+      expect(animals.my_all?{ compare_word }).to eql(animals.all?{ compare_word })
     end
 
-    it "returns true or false matching with given pattern - Regexp class" do
+    it "returns true or false matching with pattern - Regexp class" do
       expect(animals.my_all?(regexp)).to eql(animals.all?(regexp))
     end
 
-    let(:arr_numeric) { [1, 2i, 3.14] }
-    it "returns true or false matching with given pattern - general classes" do
+    it "returns true or false matching with pattern - general classes" do
       expect(arr_numeric.my_all?(Numeric)).to eql(arr_numeric.all?(Numeric)) # true
     end
 
-    let(:arr_with_nil) { [nil, true, 99] }
     it "returns true or false for that all elements is true including nil array" do
       expect(arr_with_nil.my_all?).to eql(arr_with_nil.all?) # false
     end
 
-    let(:arr_empty) { [] }
     it "returns true or false for that all elements is true within empty array" do
       expect(arr_empty.my_all?).to eql(arr_empty.all?) # true
     end
   end
 
   describe "#my_any?" do
-    let(:animals) { %w[ant bear cat] }
-    let(:regexp) { /t/ }
-
-    it "returns true or false with given block" do
-      expect(animals.my_any? {|word| word.length >= 4})
-      .to eql(animals.any? {|word| word.length >= 4} )
+    it "returns true or false with block" do
+      expect(animals.my_any?{ compare_word }).to eql(animals.any?{ compare_word })
     end
 
-    it "returns true or false matching with given pattern - Regexp" do
-      expect(animals.my_any? (regexp)).to eql(animals.any? (regexp))
+    it "returns true or false matching with pattern - Regexp" do
+      expect(animals.my_any?(regexp)).to eql(animals.any?(regexp))
     end
 
-    let(:arr_with_nil) { [nil, true, 99] }
     it "returns true or false for that any of elements is true including nil array" do
       expect(arr_with_nil.my_any?).to eql(arr_with_nil.any?)
     end
 
-    let(:arr_empty) { [] }
     it "returns true or false for that any of elements is true within empty array" do
       expect(arr_empty.my_any?).to eql(arr_empty.any?)
     end
   end
 
   describe "#my_none?" do
-    let(:animals) { %w[ant bear cat] }
-    let(:regexp) { /d/ }
-
-    it "returns true or false with given block" do
-      expect(animals.my_none? { |word| word.length >= 4 })
-      .to eql(animals.none? { |word| word.length >= 4 })
+    it "returns true or false with block" do
+      expect(animals.my_none?{ compare_word }).to eql(animals.none?{ compare_word })
     end
 
-    it "returns true or false matching with given pattern - Regexp" do
+    it "returns true or false matching with pattern - Regexp" do
       expect(animals.my_none?(regexp)).to eql(animals.none?(regexp))
     end
 
-    let(:general_class) { Float }
-    let(:arr_float) { [1, 3.14, 42] }
-    it "returns true or false matching with given pattern - general_class" do
-      expect(arr_float.my_none?(general_class))
-      .to eql(arr_float.none?(general_class))
+    it "returns true or false matching with pattern - general_class" do
+      expect(arr_f.my_none?(general_class)).to eql(arr_f.none?(general_class))
     end
 
-    let(:arr_with_false) { [nil, false] }
-    it "returns true or false without pattern or block given including false array" do
-      expect(arr_with_false.my_none?).to eql(arr_with_false.none?) # true
+    it "returns true or false without pattern or block including false array" do
+      expect(arr_with_false.my_none?).to eql(arr_with_false.none?)
     end
 
-    let(:arr_with_true) { [nil, false, true] }
-    it "returns true or false without pattern or block given including true array" do
-      expect(arr_with_true.my_none?).to eql(arr_with_true.none?) # false
+    it "returns true or false without pattern or block including true array" do
+      expect(arr_with_true.my_none?).to eql(arr_with_true.none?)
     end
   end
 
   describe "#my_count" do
-    let(:arr_num) { [1, 2, 4, 2] }
-
-    it "returns the number of the elements without block or pattern given" do
-      expect(arr_num.my_count).to eql(arr_num.count) # 4
+    it "returns the number of the elements with no given condition - enumerator" do
+      expect(enum.my_count).to eql(enum.count)
     end
 
-    it "returns the number of the elements matching with given pattern" do
-      expect(arr_num.my_count(2)).to eql(arr_num.count(2)) # 2
+    it "returns the number of the elements with no given condition - array" do
+      expect(arr_i.my_count).to eql(arr_i.count)
     end
 
-    it "returns the number of the elements matching with given block" do
-      expect(arr_num.my_count{|x| x%2 == 0 })
-      .to eql(arr_num.count{|x| x%2 == 0 })
+    it "returns the number of the elements with no given condition - range" do
+      expect(range.my_count).to eql(range.count)
+    end
+
+    it "returns the number of the elements matching with pattern" do
+      expect(arr_i.my_count(2)).to eql(arr_i.count(2))
+    end
+
+    it "returns the number of the elements matching with block" do
+      expect(arr_i.my_count{ even_check })
+      .to eql(arr_i.count{ even_check })
     end
   end
 
   describe "#my_map" do
-    let(:range) { (1..4) }
-
-    it "returns a new array through the given block process" do
-      expect(range.my_map{ |x| x*x }).to eql(range.map{ |x| x*x })
+    it "returns a new array through the proccess parameter with no block" do
+      expect(animals.my_map(&:to_i)).to eql(animals.map(&:to_i))
     end
 
-    it "returns an enumerator if no block is given" do
+    it "returns a new array through the block process - string array" do
+      expect(animals.my_map{ to_str }).to eql(animals.map{ to_str })
+    end
+
+    it "returns a new array through the block process - range" do
+      expect(range.my_map{ to_square }).to eql(range.map{ to_square })
+    end
+
+    it "returns a new array through the block process - number array" do
+      expect(arr_i.my_map{ to_square }).to eql(arr_i.map{ to_square })
+    end
+
+    it "returns itself if no block is - enumerator" do
+      expect(enum.my_map).to be_an Enumerator
+    end
+
+    it "returns an enumerator if no block is given - array" do
+      expect(arr_i.my_map).to be_an Enumerator
+    end
+
+    it "returns an enumerator if no block is given - range" do
       expect(range.my_map).to be_an Enumerator
     end
   end
 
   describe "#my_inject" do
-    let(:range) { (5..10) }
-    let(:accumulator) { 2 }
-
-    it "returns accumulated result without parameter" do
-      expect(range.my_inject { |acc,n| acc+n })
-      .to eql(range.inject { |acc,n| acc+n }) # 45
+    it "returns accumulated result only with block - string array" do
+      expect(animals.my_inject{ acc_plus }).to eql(animals.inject{ acc_plus })
     end
 
-    it "returns accumulated result with parameter" do
-      expect(range.my_inject(accumulator) { |acc,n| acc*n })
-      .to eql(range.inject(accumulator) { |acc,n| acc*n }) #151200*2
+    it "returns accumulated result only with block - range" do
+      expect(range.my_inject{ acc_plus }).to eql(range.inject{ acc_plus })
+    end
+
+    it "returns accumulated result only with block - number array" do
+      expect(arr_i.my_inject{ acc_plus }).to eql(arr_i.inject{ acc_plus })
+    end
+
+    it "returns accumulated result with parameter and block - string array" do
+      expect(animals.my_inject(acc_str){ acc_plus })
+      .to eql(animals.inject(acc_str){ acc_plus })
+    end
+
+    it "returns accumulated result with parameter and block - range" do
+      expect(range.my_inject(acc_num){ acc_mult })
+      .to eql(range.inject(acc_num){ acc_mult })
+    end
+
+    it "returns accumulated result with parameter and block - number array" do
+      expect(arr_i.my_inject(acc_num){ acc_mult })
+      .to eql(arr_i.inject(acc_num){ acc_mult })
     end
   end
 end
