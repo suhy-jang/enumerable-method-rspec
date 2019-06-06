@@ -70,12 +70,9 @@ module Enumerable
   def my_count(item = nil)
     cnt = 0
     if item.nil?
-      unless block_given?
-        cnt = self.length
-      else
-        self.my_each do |p|
-          cnt += 1 if yield(p)
-        end
+      self.my_each do |p|
+        next if block_given? && !yield(p)
+        cnt += 1
       end
     else
       self.my_each{|p| cnt += 1 if p == item}
@@ -86,7 +83,7 @@ module Enumerable
   def my_map(proc = nil)
     return self.to_enum(:my_map) unless block_given?
     new_arr = []
-    for p in self
+    self.my_each do |p|
       if !proc.nil?
         new_arr << proc.call(p)
       else
