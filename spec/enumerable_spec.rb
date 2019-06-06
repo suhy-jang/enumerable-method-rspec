@@ -11,7 +11,7 @@ RSpec.describe Enumerable do
       :method_returned
     end
 
-    enum = obj.to_enum :each_arg, :a, :x
+    obj.to_enum :each_arg, :a, :x
   }
 
   describe "#my_each" do
