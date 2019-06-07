@@ -33,7 +33,7 @@ RSpec.describe Enumerable do
 
   let(:itself) { proc { |x| x } }
   let(:to_square) { proc { |x| x * x } }
-  let(:to_str) { proc { |_x| 'dog' } }
+  let(:to_str) { proc { 'dog' } }
   let(:sym_check) { proc { |x| x == :foo } }
   let(:even_check) { proc { |x| x.even? } }
   let(:compare_word) { proc { |word| word.length >= 4 } }
@@ -106,7 +106,8 @@ RSpec.describe Enumerable do
 
   describe '#my_all?' do
     it 'returns true or false with block' do
-      expect(animals.my_all? { compare_word }).to eql(animals.all? { compare_word })
+      expect(animals.my_all? { compare_word })
+        .to eql(animals.all? { compare_word })
     end
 
     it 'returns true or false matching with pattern - Regexp class' do
@@ -146,7 +147,8 @@ RSpec.describe Enumerable do
 
   describe '#my_none?' do
     it 'returns true or false with block' do
-      expect(animals.my_none? { compare_word }).to eql(animals.none? { compare_word })
+      expect(animals.my_none? { compare_word })
+        .to eql(animals.none? { compare_word })
     end
 
     it 'returns true or false matching with pattern - Regexp' do
@@ -184,8 +186,7 @@ RSpec.describe Enumerable do
     end
 
     it 'returns the number of the elements matching with block' do
-      expect(arr_i.my_count { even_check })
-        .to eql(arr_i.count { even_check })
+      expect(arr_i.my_count { even_check }).to eql(arr_i.count { even_check })
     end
   end
 
