@@ -1,68 +1,73 @@
+# frozen_string_literal: true
+
 module Enumerable
   def my_each
-    return (self.is_a? Enumerator) ? self : self.to_enum(:my_each) unless block_given?
-    for x in self
+    return (is_a? Enumerator) ? self : to_enum(:my_each) unless block_given?
+
+    each do |x|
       yield(x)
     end
   end
 
   def my_each_with_index
-    return self.to_enum(:each_with_index) unless block_given?
+    return to_enum(:each_with_index) unless block_given?
+
     i = 0
-    self.my_each do |x|
-      yield(x,i)
+    my_each do |x|
+      yield(x, i)
       i += 1
     end
   end
 
   def my_select
-    return (self.is_a? Enumerator) ? self : self.to_enum(:my_select) unless block_given?
+    return (is_a? Enumerator) ? self : to_enum(:my_select) unless block_given?
+
     arr = []
-    self.my_each { |p| arr << p if yield(p) }
+    my_each { |p| arr << p if yield(p) }
     arr
   end
 
   def my_all?(pattern = nil)
     if block_given?
-      self.my_each {|p| return false unless yield(p)}
-    elsif pattern != nil
+      my_each { |p| return false unless yield(p) }
+    elsif !pattern.nil?
       if pattern.is_a? Regexp
-        self.my_each {|p| return false unless pattern =~ p}
+        my_each { |p| return false unless pattern =~ p }
       else # sort
-        self.my_each {|p| return false unless p.is_a?(pattern)}
+        my_each { |p| return false unless p.is_a?(pattern) }
       end
     else
-      self.my_each {|p| return false unless p}
+      my_each { |p| return false unless p }
     end
     true
   end
 
   def my_any?(pattern = nil)
     if block_given?
-      self.my_each { |p| return true if yield(p)}
-    elsif pattern != nil
+      my_each { |p| return true if yield(p) }
+    elsif !pattern.nil?
       if pattern.is_a? Regexp
-        self.my_each {|p| return true if pattern =~ p }
+        my_each { |p| return true if pattern =~ p }
       else # sort
-        self.my_each { |p| return true if p.is_a?(pattern)}
+        my_each { |p| return true if p.is_a?(pattern) }
       end
     else
-      self.my_each { |p| return true if p }
+      my_each { |p| return true if p }
     end
     false
   end
 
   def my_none?(pattern = nil)
     if block_given?
-      self.my_each{ |p| return false if yield(p)}
-    elsif pattern != nil
+      my_each { |p| return false if yield(p) }
+    elsif !pattern.nil?
       if pattern.is_a? Regexp
-        self.my_each{ |p| return false if pattern =~ p}
-      else  # sort
-        self.my_each{ |p| return false if p.is_a?(pattern)}
+        my_each { |p| return false if pattern =~ p }
+      else # sort
+        my_each { |p| return false if p.is_a?(pattern) }
       end
     else
-      self.my_each{ |p| return false if p}
+      my_each { |p| return false if p }
     end
     true
   end
@@ -70,44 +75,46 @@ module Enumerable
   def my_count(item = nil)
     cnt = 0
     if item.nil?
-      self.my_each do |p|
+      my_each do |p|
         next if block_given? && !yield(p)
+
         cnt += 1
       end
     else
-      self.my_each{|p| cnt += 1 if p == item}
+      my_each { |p| cnt += 1 if p == item }
     end
     cnt
   end
 
   def my_map(proc = nil)
-    return self.to_enum(:my_map) unless block_given?
+    return to_enum(:my_map) unless block_given?
+
     new_arr = []
-    self.my_each do |p|
-      if !proc.nil?
-        new_arr << proc.call(p)
-      else
-        new_arr << yield(p)
-      end
+    my_each do |p|
+      new_arr << if !proc.nil?
+                   proc.call(p)
+                 else
+                   yield(p)
+                 end
     end
     new_arr
   end
 
   def my_inject(acc = nil)
-    self.my_each_with_index do |p,i|
-      if 0 == i && acc.nil?
+    my_each_with_index do |p, i|
+      if i == 0 && acc.nil?
         acc = p
         next
       end
-      acc = yield(acc,p)
+      acc = yield(acc, p)
     end
     acc
   end
 end
 
 def multiply_else(arr)
-  result = arr.my_inject do |memo,curr|
-    memo*curr
+  result = arr.my_inject do |memo, curr|
+    memo * curr
   end
   result
 end
